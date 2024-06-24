@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 import threading
 import time
 import random
@@ -29,27 +29,32 @@ class TokenRing:
         while not self.stop:
             with self.lock:
                 if self.emissores[self.token_position].token:
+                    self.gui.update_table_sender(self.token_position)
                     self.send_message(self.token_position)
                     for receptor_id in range(self.num_processes):
-                        # Schedule acknowledgment after 1 second
-                        self.gui.after(1000, self.send_acknowledgment, receptor_id, self.token_position)
+                        # Schedule acknowledgment after 2 seconds
+                        self.gui.after(2000, self.send_acknowledgment, receptor_id, self.token_position)
                     self.token_position = (self.token_position + 1) % self.num_processes
                     for emissor in self.emissores:
                         emissor.token = False
                     self.emissores[self.token_position].token = True
-            time.sleep(2)
+            time.sleep(4)
 
     def send_message(self, emissor_id):
         emissor = self.emissores[emissor_id]
+        messages = []
         for receptor_id in range(self.num_processes):
             message_label = f"m{emissor_id}{receptor_id}"
+            messages.append(message_label)
             self.gui.update_receptor_color(receptor_id, emissor.color)
             self.gui.draw_message_line(emissor_id, receptor_id, emissor.color, message_label)
+        self.gui.update_table_message(messages)
         print(f"Emissor {emissor_id} enviou uma mensagem para todos os receptores")
 
     def send_acknowledgment(self, receptor_id, emissor_id):
         acknowledgment_label = f"r{receptor_id}{emissor_id}"
         self.gui.draw_response_line(receptor_id, emissor_id, "orange", acknowledgment_label)
+        self.gui.update_table_acknowledgment(acknowledgment_label)
         print(f"Receptor {receptor_id} enviou uma confirmação para Emissor {emissor_id}")
 
     def stop_communication(self):
@@ -63,8 +68,23 @@ class GUI(tk.Tk):
         super().__init__()
         self.token_ring = token_ring
         self.title("Token Ring Communication")
+        self.geometry("800x500")
+
         self.canvas = tk.Canvas(self, width=600, height=400)
-        self.canvas.pack()
+        self.canvas.pack(side=tk.LEFT)
+        
+        self.table_frame = tk.Frame(self, width=200)
+        self.table_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=False)
+
+        self.tree = ttk.Treeview(self.table_frame, columns=("emissor", "mensagem", "confirmacao"), show='headings', height=3)
+        self.tree.heading("emissor", text="Emissor")
+        self.tree.heading("mensagem", text="Mensagem")
+        self.tree.heading("confirmacao", text="Confirmação")
+        self.tree.column("emissor", width=100)
+        self.tree.column("mensagem", width=200)
+        self.tree.column("confirmacao", width=200)
+        self.tree.pack(fill=tk.BOTH, expand=True)
+
         self.draw_emissores()
         self.draw_receptores()
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -109,6 +129,23 @@ class GUI(tk.Tk):
                                        text=label, fill=color)
         self.after(1000, lambda: self.canvas.delete(line))  # Remove the line after 1 second
         self.after(1000, lambda: self.canvas.delete(text))  # Remove the text after 1 second
+
+    def update_table_sender(self, emissor_id):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        self.tree.insert("", "end", values=(f"{emissor_id}", "", ""))
+
+    def update_table_message(self, messages):
+        for item in self.tree.get_children():
+            current_values = self.tree.item(item, "values")
+            self.tree.item(item, values=(current_values[0], ", ".join(messages), ""))
+
+    def update_table_acknowledgment(self, acknowledgment_label):
+        for item in self.tree.get_children():
+            current_values = self.tree.item(item, "values")
+            current_acknowledgments = current_values[2].split(", ") if current_values[2] else []
+            current_acknowledgments.append(acknowledgment_label)
+            self.tree.item(item, values=(current_values[0], current_values[1], ", ".join(current_acknowledgments)))
 
     def on_closing(self):
         self.token_ring.stop_communication()
