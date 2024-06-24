@@ -1,39 +1,26 @@
 # Algoritmo de Comunicação em Grupo Baseado em Privilégio
 
-Este projeto implementa um sistema de comunicação baseado no algoritmo de privilégio. O objetivo é simular a comunicação entre processos emissores e receptores, utilizando a linguagem Python com a biblioteca Tkinter para a interface gráfica. O sistema permite que múltiplos processos enviem e recebam mensagens, utilizando um token que garante a exclusividade do envio de mensagens por vez.
+Este código implementa um sistema de comunicação em grupo baseado em privilégio. Tem como objetivo simular a comunicação entre processos emissores e receptores, utilizando a linguagem Python com a biblioteca Tkinter para a interface gráfica. O sistema permite que múltiplos processos enviem e recebam mensagens, sendo que apenas o processo emissor de posse do token pode realizar o envio de mensagens ao grupo.
 
 ### Requisitos Funcionais
 
-#### Cliente
 - Interface gráfica para visualizar emissores e receptores.
-- Emissores enviam mensagens para todos os receptores.
+- Emissor com o token envia mensagens para todos os receptores.
 - Receptores enviam confirmações de recebimento de mensagens.
-
-#### Servidor
 - Gerenciamento de token para controlar qual emissor pode enviar mensagens.
-- Manutenção do estado do sistema (quem tem o token, mensagens enviadas e recebidas).
-
-### Tipo de Requisição
-- **Envio de Mensagem**: Quando um emissor com token envia mensagens para todos os receptores.
-- **Confirmação de Recebimento**: Quando um receptor confirma o recebimento da mensagem para o emissor.
+- Tabela de manutenção do estado do sistema (quem tem o token, mensagens enviadas e recebidas).
 
 ### Identificação dos Processos
 - Cada emissor e receptor possui um ID único.
 - O processo atual com o token é identificado e permite o envio de mensagens.
 
-### Comunicação entre Cliente e Servidor
+### Comunicação entre Receptor e Emissor
 
 #### Descrição da Comunicação
 A comunicação segue o padrão de privilégio:
 1. O emissor com o token envia mensagens para todos os receptores.
 2. Cada receptor envia uma confirmação de recebimento ao emissor.
 3. O token é passado para o próximo emissor na sequência.
-
-
-### Descrição do Serviço
-
-#### Execução no Servidor
-O serviço no servidor é responsável por gerenciar o token e a comunicação entre os processos. Ele controla qual emissor possui o token e sincroniza o envio e recebimento de mensagens.
 
 ### Código de Demonstração
 
@@ -60,7 +47,7 @@ def send_acknowledgment(self, receptor_id, emissor_id):
 
 ### Conclusão
 
-A implementação do sistema de comunicação baseado no algoritmo de privilégio demonstrou com sucesso a gestão eficiente e sincronizada de mensagens entre processos emissores e receptores. Utilizando a linguagem Python e a biblioteca Tkinter, foi possível criar uma interface gráfica intuitiva que facilita a visualização e o entendimento do fluxo de comunicação. 
+A implementação do sistema de comunicação baseado em privilégio demonstrou com sucesso o envio e recebimento eficiente e sincronizado de mensagens entre processos emissores e receptores. Utilizando a linguagem Python e a biblioteca Tkinter, foi possível criar uma interface gráfica intuitiva que facilita a visualização e o entendimento do fluxo de comunicação. 
 
 # Algoritmo de Exclusão Mútua por Token Ring
 
